@@ -6,95 +6,167 @@
   <title>GodsOP Minecraft Shop</title>
   <style>
     body {
-      background: #111;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
       color: #fff;
-      font-family: Arial, sans-serif;
       display: flex;
-      height: 100vh;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
     }
 
     .box {
-      background: #222;
+      background-color: rgba(0, 0, 0, 0.8);
       padding: 30px;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 0 20px #000;
-      width: 350px;
+      border-radius: 20px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+      animation: fadeIn 0.5s ease-in-out;
     }
 
-    input, select {
-      padding: 10px;
-      margin-top: 10px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    input[type="text"] {
+      padding: 12px;
       width: 100%;
+      font-size: 16px;
+      border-radius: 10px;
       border: none;
-      border-radius: 5px;
+      margin-bottom: 20px;
+      background: #333;
+      color: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 15px;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      border-bottom: 1px solid #444;
+    }
+
+    th {
+      background-color: #444;
+    }
+
+    tr:hover {
+      background-color: #333;
+      transition: 0.3s;
     }
 
     button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      cursor: pointer;
-      background: #00c853;
+      background-color: #00b894;
       color: white;
+      padding: 14px 30px;
+      font-size: 18px;
       border: none;
-      border-radius: 5px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00b894;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #019875;
+      box-shadow: 0 0 15px #01ffb3;
     }
 
     #result {
-      margin-top: 15px;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #ff7675;
+    }
+
+    @media screen and (max-width: 600px) {
+      th, td {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      button {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div class="box">
     <h1>🛒 GodsOP Minecraft Shop</h1>
-    <p>Enter your Minecraft name and choose a rank:</p>
-
+    <p>Enter your Minecraft name:</p>
     <input type="text" id="username" placeholder="Minecraft Username" required />
 
-    <select id="rank">
-      <option value="">-- Choose Rank --</option>
-      <option value="VIP">1. VIP - ₹50</option>
-      <option value="MVP">2. MVP - ₹100</option>
-      <option value="LEGEND">3. LEGEND - ₹200</option>
-      <option value="ULTRA">4. ULTRA - ₹300</option>
-      <option value="TITAN">5. TITAN - ₹500</option>
-      <option value="GOD">6. GOD - ₹800</option>
-    </select>
+    <p>Select a rank:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Rank</th>
+          <th>Price</th>
+          <th>Select</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>VIP</td><td>₹50</td><td><input type="radio" name="rank" value="VIP" /></td></tr>
+        <tr><td>2</td><td>MVP</td><td>₹100</td><td><input type="radio" name="rank" value="MVP" /></td></tr>
+        <tr><td>3</td><td>LEGEND</td><td>₹200</td><td><input type="radio" name="rank" value="LEGEND" /></td></tr>
+        <tr><td>4</td><td>ULTRA</td><td>₹300</td><td><input type="radio" name="rank" value="ULTRA" /></td></tr>
+        <tr><td>5</td><td>TITAN</td><td>₹500</td><td><input type="radio" name="rank" value="TITAN" /></td></tr>
+        <tr><td>6</td><td>GOD</td><td>₹800</td><td><input type="radio" name="rank" value="GOD" /></td></tr>
+      </tbody>
+    </table>
 
     <button onclick="buyRank()">Buy Rank</button>
-
     <p id="result"></p>
   </div>
 
   <script>
-    function buyRank() {
-      const username = document.getElementById("username").value.trim();
-      const rank = document.getElementById("rank").value;
+    async function buyRank() {
+      const username = document.getElementById("username").value;
+      const rank = document.querySelector('input[name="rank"]:checked')?.value;
 
       if (!username || !rank) {
-        document.getElementById("result").innerText = "⚠️ Please enter your name and select a rank.";
+        document.getElementById("result").innerText = "⚠️ Please enter your username and select a rank.";
         return;
       }
 
-      fetch("/give-rank", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, rank })
-      })
-      .then(res => res.json())
-      .then(data => {
+      try {
+        const res = await fetch("/give-rank", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username, rank })
+        });
+
+        const data = await res.json();
         if (data.success) {
-          document.getElementById("result").innerText = `✅ ${rank} has been given to ${username}`;
+          document.getElementById("result").innerText = `✅ Rank ${rank} given to ${username}`;
         } else {
           document.getElementById("result").innerText = `❌ Error: ${data.error}`;
         }
-      })
-      .catch(() => {
-        document.getElementById("result").innerText = "❌ Network error. Please try again.";
-      });
+      } catch (err) {
+        document.getElementById("result").innerText = "❌ Server error. Please try again.";
+      }
     }
   </script>
 </body>
