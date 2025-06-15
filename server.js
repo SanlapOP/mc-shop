@@ -4,7 +4,10 @@ const bodyParser = require("body-parser");
 const { Rcon } = require("rcon-client");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(bodyParser.json());
+
 app.use(express.static(path.join(__dirname)));
 
 app.post("/give-rank", async (req, res) => {
@@ -27,6 +30,10 @@ app.post("/give-rank", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("🛒 MC Shop running on http://localhost:3000");
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.listen(PORT, () => {
+  console.log(`🛒 MC Shop running on http://localhost:${PORT}`);
 });
