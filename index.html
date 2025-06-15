@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GodsOP Minecraft Shop</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box {
+      background: #222;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 20px #000;
+      width: 350px;
+    }
+
+    input, select {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      cursor: pointer;
+      background: #00c853;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #result {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>🛒 GodsOP Minecraft Shop</h1>
+    <p>Enter your Minecraft name and choose a rank:</p>
+
+    <input type="text" id="username" placeholder="Minecraft Username" required />
+
+    <select id="rank">
+      <option value="">-- Choose Rank --</option>
+      <option value="VIP">1. VIP - ₹50</option>
+      <option value="MVP">2. MVP - ₹100</option>
+      <option value="LEGEND">3. LEGEND - ₹200</option>
+      <option value="ULTRA">4. ULTRA - ₹300</option>
+      <option value="TITAN">5. TITAN - ₹500</option>
+      <option value="GOD">6. GOD - ₹800</option>
+    </select>
+
+    <button onclick="buyRank()">Buy Rank</button>
+
+    <p id="result"></p>
+  </div>
+
+  <script>
+    function buyRank() {
+      const username = document.getElementById("username").value.trim();
+      const rank = document.getElementById("rank").value;
+
+      if (!username || !rank) {
+        document.getElementById("result").innerText = "⚠️ Please enter your name and select a rank.";
+        return;
+      }
+
+      fetch("/give-rank", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, rank })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("result").innerText = `✅ ${rank} has been given to ${username}`;
+        } else {
+          document.getElementById("result").innerText = `❌ Error: ${data.error}`;
+        }
+      })
+      .catch(() => {
+        document.getElementById("result").innerText = "❌ Network error. Please try again.";
+      });
+    }
+  </script>
+</body>
+</html>
